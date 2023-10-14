@@ -1,0 +1,41 @@
+name: Release
+on:
+  workflow_dispatch:
+    inputs:
+      new_version:
+        type: string
+        required: false
+      previous_version:
+        type: string
+        required: false
+jobs:
+  release-this-thing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Initialize mandatory git config
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email noreply@github.com
+      - name: uplift the version number to simulate the release being taken
+        run: |
+          VERSION=$(cat VERSION) && MAJOR=$(echo $VERSION | cut -d. -f1) && MINOR=$(echo $VERSION | cut -d. -f2) && PATCH=$(echo $VERSION | cut -d. -f3) && NEW_VERSION="$MAJOR.$MINOR.$((PATCH+1))" && echo $NEW_VERSION > VERSION
+      - name: Create release branch
+        run: |
+          export branch="release/v$(cat VERSION)"
+          git checkout -b ${branch}
+      - name: Commit updated VERSION
+        run: |
+          git add VERSION
+          export new_version="$(cat VERSION)"
+          git commit --allow-empty -m "JIRA-0001 Release version ${new_version}"
+          git tag v${new_version}
+          git push origin release/v${new_version}
+          echo "Updated VERSION with:${new_version}"
+          echo "Commited with: JIRA-0001 Release version ${new_version}"
+          echo "Pushed to release/v${new_version}"
+          git checkout main
+          git merge --ff-only release/v${new_version}
+          git push
