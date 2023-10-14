@@ -38,6 +38,7 @@ jobs:
           git push
       - name: create Release
         run: |
+          export new_version="$(cat VERSION)"
           gh release create "v${new_version}" --generate-notes --latest --target main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
