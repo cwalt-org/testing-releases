@@ -5,15 +5,12 @@ on:
       new_version:
         type: string
         required: false
-      previous_version:
-        type: string
-        required: false
 jobs:
   release-this-thing:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Initialize mandatory git config
         run: |
@@ -41,6 +38,6 @@ jobs:
           git push
       - name: create Release
         run: |
-          gh release create "v${{ inputs.new_version }}" --generate-notes --latest --target main
+          gh release create "v${new_version}" --generate-notes --latest --target main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
